@@ -21,3 +21,9 @@ export interface Concert {
   isReservedByCurrentUser: boolean;
   reservationId: string | null;
 }
+
+export interface AdminStats {
+  totalSeats: number;
+  reserved: number;
+  canceled: number;
+}

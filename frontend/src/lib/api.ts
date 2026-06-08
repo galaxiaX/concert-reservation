@@ -1,5 +1,5 @@
 import { getToken } from "./auth";
-import type { AuthResult, Concert } from "./types";
+import type { AdminStats, AuthResult, Concert } from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -57,6 +57,17 @@ export const authApi = {
 
 export const concertsApi = {
   list: () => request<Concert[]>("/concerts"),
+  create: (input: { name: string; description: string; totalSeats: number }) =>
+    request<Concert>("/concerts", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  remove: (id: string) =>
+    request<{ id: string }>(`/concerts/${id}`, { method: "DELETE" }),
+};
+
+export const adminApi = {
+  stats: () => request<AdminStats>("/admin/stats"),
 };
 
 export const reservationsApi = {
