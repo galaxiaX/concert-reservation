@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum ReservationStatus {
+  ACTIVE
+  CANCELED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  reservations Reservation[]
+}
+
+model Concert {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  totalSeats  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reservations Reservation[]
+
+  @@index([createdAt])
+}
+
+model Reservation {
+  id         String            @id @default(uuid())
+  userId     String
+  concertId  String
+  status     ReservationStatus @default(ACTIVE)
+  createdAt  DateTime          @default(now())
+  canceledAt DateTime?
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concert Concert @relation(fields: [concertId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([concertId])
+}
