@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
 import { Toast, type ToastState } from "@/components/Toast";
@@ -78,7 +79,15 @@ export default function ConcertsPage() {
     <AppShell role="USER" active="home">
       <Toast toast={toast} onDismiss={() => setToast(null)} />
 
-      <h1 className="text-[32px] font-semibold sm:text-[40px]">Concerts</h1>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-[32px] font-semibold sm:text-[40px]">Concerts</h1>
+        <Link
+          href="/concerts/history"
+          className="text-base font-medium text-secondary transition hover:underline"
+        >
+          My reservations →
+        </Link>
+      </div>
 
       {loadError && (
         <p className="mt-6 text-error" role="alert">

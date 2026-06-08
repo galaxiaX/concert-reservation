@@ -1,5 +1,11 @@
 import { getToken } from "./auth";
-import type { AdminStats, AuthResult, Concert } from "./types";
+import type {
+  AdminStats,
+  AuditLogRow,
+  AuthResult,
+  Concert,
+  MyReservation,
+} from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -75,4 +81,6 @@ export const reservationsApi = {
     request<unknown>(`/concerts/${concertId}/reservations`, { method: "POST" }),
   cancel: (reservationId: string) =>
     request<unknown>(`/reservations/${reservationId}`, { method: "DELETE" }),
+  mine: () => request<MyReservation[]>("/me/reservations"),
+  auditLog: () => request<AuditLogRow[]>("/admin/reservations"),
 };
