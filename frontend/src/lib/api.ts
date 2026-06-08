@@ -1,5 +1,5 @@
 import { getToken } from "./auth";
-import type { AuthResult } from "./types";
+import type { AuthResult, Concert } from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -53,4 +53,15 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify({ name, email, password }),
     }),
+};
+
+export const concertsApi = {
+  list: () => request<Concert[]>("/concerts"),
+};
+
+export const reservationsApi = {
+  reserve: (concertId: string) =>
+    request<unknown>(`/concerts/${concertId}/reservations`, { method: "POST" }),
+  cancel: (reservationId: string) =>
+    request<unknown>(`/reservations/${reservationId}`, { method: "DELETE" }),
 };

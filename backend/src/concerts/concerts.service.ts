@@ -10,6 +10,7 @@ export interface ConcertListItem {
   totalSeats: number;
   availableSeats: number;
   isReservedByCurrentUser: boolean;
+  reservationId: string | null;
 }
 
 export interface AdminStats {
@@ -43,6 +44,7 @@ export class ConcertsService {
       totalSeats: c.totalSeats,
       availableSeats: c.totalSeats - c._count.reservations,
       isReservedByCurrentUser: c.reservations.length > 0,
+      reservationId: c.reservations[0]?.id ?? null,
     }));
   }
 

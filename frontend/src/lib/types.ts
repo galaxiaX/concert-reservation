@@ -11,3 +11,13 @@ export interface AuthResult {
   accessToken: string;
   user: AuthUser;
 }
+
+export interface Concert {
+  id: string;
+  name: string;
+  description: string;
+  totalSeats: number;
+  availableSeats: number;
+  isReservedByCurrentUser: boolean;
+  reservationId: string | null;
+}
