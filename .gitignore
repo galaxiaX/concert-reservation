@@ -1,0 +1,20 @@
+# Ignore everything at root level
+/*
+
+# Un-ignore only what we want to track
+!/frontend/
+!/backend/
+!/README.md
+!/.gitignore
+!/docker-compose.yml
+
+# Re-ignore generated/secret files INSIDE the tracked app dirs
+frontend/node_modules/
+frontend/.next/
+frontend/dist/
+frontend/.env*
+!frontend/.env.example
+backend/node_modules/
+backend/dist/
+backend/.env*
+!backend/.env.example
