@@ -7,6 +7,21 @@ import {
 import { Prisma, Reservation, ReservationStatus } from '@prisma/client';
 import { PrismaService } from '../common/prisma/prisma.service';
 
+export interface MyReservation {
+  id: string;
+  concertName: string;
+  status: ReservationStatus;
+  reservedAt: Date;
+  canceledAt: Date | null;
+}
+
+export interface AuditLogRow {
+  datetime: Date;
+  username: string;
+  concertName: string;
+  action: 'Reserve' | 'Cancel';
+}
+
 @Injectable()
 export class ReservationsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -79,5 +94,54 @@ export class ReservationsService {
       where: { id: reservationId },
       data: { status: ReservationStatus.CANCELED, canceledAt: new Date() },
     });
+  }
+
+  /** Current user's own reservation history, newest first. */
+  async listMine(userId: string): Promise<MyReservation[]> {
+    const rows = await this.prisma.reservation.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: { concert: { select: { name: true } } },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      concertName: r.concert.name,
+      status: r.status,
+      reservedAt: r.createdAt,
+      canceledAt: r.canceledAt,
+    }));
+  }
+
+  /**
+   * Admin audit trail: an action log, not a reservation list. Each reservation
+   * yields a `Reserve` row (from `createdAt`) and, if canceled, a `Cancel` row
+   * (from `canceledAt`). Newest first.
+   */
+  async auditLog(): Promise<AuditLogRow[]> {
+    const rows = await this.prisma.reservation.findMany({
+      include: {
+        user: { select: { name: true } },
+        concert: { select: { name: true } },
+      },
+    });
+
+    const log: AuditLogRow[] = [];
+    for (const r of rows) {
+      log.push({
+        datetime: r.createdAt,
+        username: r.user.name,
+        concertName: r.concert.name,
+        action: 'Reserve',
+      });
+      if (r.canceledAt) {
+        log.push({
+          datetime: r.canceledAt,
+          username: r.user.name,
+          concertName: r.concert.name,
+          action: 'Cancel',
+        });
+      }
+    }
+    return log.sort((a, b) => b.datetime.getTime() - a.datetime.getTime());
   }
 }

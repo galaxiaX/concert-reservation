@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -37,5 +38,19 @@ export class ReservationsController {
   async cancel(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     const data = await this.reservationsService.cancel(user.id, id);
     return { data, message: 'Reservation canceled' };
+  }
+
+  @Get('me/reservations')
+  @Roles(Role.USER)
+  async listMine(@CurrentUser() user: AuthUser) {
+    const data = await this.reservationsService.listMine(user.id);
+    return { data, message: 'Reservations retrieved' };
+  }
+
+  @Get('admin/reservations')
+  @Roles(Role.ADMIN)
+  async auditLog() {
+    const data = await this.reservationsService.auditLog();
+    return { data, message: 'Audit log retrieved' };
   }
 }
