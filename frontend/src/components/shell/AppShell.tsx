@@ -48,15 +48,15 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-neutral md:flex">
-      <aside className="flex flex-col gap-1 border-b border-sidebar-border bg-surface px-4 py-5 md:h-screen md:w-[240px] md:shrink-0 md:border-b-0 md:border-r md:px-5 md:py-8">
-        <div className="mb-2 flex items-center gap-3 px-3 md:mb-8">
+      <aside className="flex flex-row flex-wrap items-center gap-x-2 gap-y-1 border-b border-sidebar-border bg-surface px-4 py-3 md:h-screen md:w-[240px] md:shrink-0 md:flex-col md:flex-nowrap md:items-stretch md:gap-1 md:border-b-0 md:border-r md:px-5 md:py-8">
+        <div className="flex items-center gap-3 px-3 md:mb-8">
           <span className="h-7 w-7 rounded-full bg-brand" aria-hidden />
           <span className="text-lg font-bold tracking-wide text-brand">
             {isAdmin ? "Admin" : "User"}
           </span>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1">
+        <nav className="flex flex-row flex-wrap items-center gap-1 md:flex-1 md:flex-col md:items-stretch">
           {NAV[role].map((item) => (
             <Link
               key={item.key}
