@@ -79,7 +79,7 @@ Jest + `ts-jest` (tests).
 
 ## Tests
 
-Backend unit tests (mock `PrismaService`) cover concert-create validation,
+**Backend** unit tests (mock `PrismaService`) cover concert-create validation,
 delete authorization, reservation success, duplicate + sold-out rejection,
 cancel ownership, and role-guard behavior:
 
@@ -91,6 +91,17 @@ npm test
 
 22 tests pass. Concurrency (no over-booking) is verified live against the
 Docker stack rather than in unit tests — see below.
+
+**Frontend** component/integration tests (Vitest + React Testing Library, per the
+Next.js testing guide) cover the login form (button label per access level,
+session save + role routing on success, backend error shown as an alert), the
+toast, the delete-confirmation modal, and the password-reveal field:
+
+```bash
+cd frontend
+npm install
+npm test
+```
 
 ## Bonus: Theory
 
