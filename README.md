@@ -58,8 +58,11 @@ docker-compose.yml
 Routes are protected with NestJS Guards; `RolesGuard` rejects `USER` calls to
 `ADMIN` endpoints with `403`. Global `ValidationPipe`
 (`whitelist` + `forbidNonWhitelisted` + `transform`) enforces server-side
-validation, returning `400` on bad input. Cancel is a **soft delete**
-(`status → CANCELED`) so the admin audit trail keeps a full record.
+validation, returning `400` on bad input. Both deletes are **soft**: cancelling
+a reservation sets `status → CANCELED`, and deleting a concert stamps `deletedAt`
+(so it drops out of listings and dashboard stats but its rows are never removed)
+— the admin audit trail (`GET /admin/reservations`) and each user's history keep
+a full record even after a concert is deleted.
 
 **Frontend** — App Router pages (`src/app/`): landing → login/signup
 (split-screen, route by role), `concerts/` (reserve/cancel cards + history),
