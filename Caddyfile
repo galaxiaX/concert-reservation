@@ -1,0 +1,6 @@
+{$SITE_ADDRESS} {
+	handle_path /api/* {
+		reverse_proxy backend:3000
+	}
+	reverse_proxy frontend:3000
+}
