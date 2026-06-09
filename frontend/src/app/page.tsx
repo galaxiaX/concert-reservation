@@ -9,9 +9,13 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-neutral">
-      <header className="flex items-center gap-3 bg-surface px-6 py-5 sm:px-12">
-        <span className="h-7 w-7 rounded-full bg-brand" aria-hidden />
-        <span className="text-xl font-bold tracking-wide text-brand">BRAND</span>
+      <header className="bg-surface px-6 py-5 sm:px-12">
+        <Link href="/" className="flex items-center gap-3">
+          <span className="h-7 w-7 rounded-full bg-brand" aria-hidden />
+          <span className="text-xl font-bold tracking-wide text-brand">
+            BRAND
+          </span>
+        </Link>
       </header>
 
       <main className="flex flex-1 flex-col items-center px-6 py-12 sm:py-16">

@@ -1,10 +1,10 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Role } from "@/lib/types";
-import { clearSession } from "@/lib/auth";
+import { clearSession, getUser } from "@/lib/auth";
 
 interface NavItem {
   label: string;
@@ -37,9 +37,13 @@ export function AppShell({
 }) {
   const router = useRouter();
   const isAdmin = role === "ADMIN";
-  const switchTo = isAdmin
-    ? { label: "Switch to User", href: "/concerts" }
-    : { label: "Switch to Admin", href: "/admin" };
+  // The demo view-switch keys off the *real* role (localStorage), not the
+  // page's view role — so only real admins get it, with the right direction
+  // (and a working round-trip). Resolved after mount to avoid an SSR mismatch.
+  const [isRealAdmin, setIsRealAdmin] = useState(false);
+  useEffect(() => {
+    setIsRealAdmin(getUser()?.role === "ADMIN");
+  }, []);
 
   function handleLogout() {
     clearSession();
@@ -71,12 +75,14 @@ export function AppShell({
               {item.label}
             </Link>
           ))}
-          <Link
-            href={switchTo.href}
-            className="rounded-sm px-3 py-2.5 text-base font-medium text-muted transition hover:bg-nav-active/60"
-          >
-            {switchTo.label}
-          </Link>
+          {isRealAdmin && (
+            <Link
+              href={isAdmin ? "/concerts" : "/admin"}
+              className="rounded-sm px-3 py-2.5 text-base font-medium text-muted transition hover:bg-nav-active/60"
+            >
+              {isAdmin ? "Switch to User" : "Switch to Admin"}
+            </Link>
+          )}
         </nav>
 
         <button
