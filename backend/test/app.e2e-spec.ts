@@ -3,14 +3,20 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
+import { PrismaService } from './../src/common/prisma/prisma.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
+    // Stub Prisma's only lifecycle hook so app.init() never opens a DB
+    // connection — this smoke test just exercises the HTTP layer.
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(PrismaService)
+      .useValue({ onModuleInit: jest.fn() })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
