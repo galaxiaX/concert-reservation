@@ -89,7 +89,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <AuthShell tagline="Your digital workspace, simplified.">
+    <AuthShell tagline="Powering the tools that power the team.">
       <Suspense>
         <LoginForm />
       </Suspense>
