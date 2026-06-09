@@ -25,6 +25,7 @@ export class ConcertsService {
 
   async list(userId: string): Promise<ConcertListItem[]> {
     const concerts = await this.prisma.concert.findMany({
+      where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
       include: {
         _count: {
@@ -58,29 +59,33 @@ export class ConcertsService {
     });
   }
 
+  /**
+   * Soft-delete: stamp `deletedAt` instead of removing the row, so reservation
+   * rows (and their concert name) survive for the admin audit trail and user
+   * history. The concert drops out of listings and stats via the `deletedAt`
+   * filters. A no-op update (already deleted or missing) maps to 404.
+   */
   async remove(id: string): Promise<void> {
-    try {
-      await this.prisma.concert.delete({ where: { id } });
-    } catch (error) {
-      if (
-        error instanceof Object &&
-        'code' in error &&
-        (error as { code: string }).code === 'P2025'
-      ) {
-        throw new NotFoundException('Concert not found');
-      }
-      throw error;
+    const { count } = await this.prisma.concert.updateMany({
+      where: { id, deletedAt: null },
+      data: { deletedAt: new Date() },
+    });
+    if (count === 0) {
+      throw new NotFoundException('Concert not found');
     }
   }
 
   async stats(): Promise<AdminStats> {
     const [seats, reserved, canceled] = await Promise.all([
-      this.prisma.concert.aggregate({ _sum: { totalSeats: true } }),
-      this.prisma.reservation.count({
-        where: { status: ReservationStatus.ACTIVE },
+      this.prisma.concert.aggregate({
+        _sum: { totalSeats: true },
+        where: { deletedAt: null },
       }),
       this.prisma.reservation.count({
-        where: { status: ReservationStatus.CANCELED },
+        where: { status: ReservationStatus.ACTIVE, concert: { deletedAt: null } },
+      }),
+      this.prisma.reservation.count({
+        where: { status: ReservationStatus.CANCELED, concert: { deletedAt: null } },
       }),
     ]);
 

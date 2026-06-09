@@ -30,16 +30,18 @@ model User {
 }
 
 model Concert {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   name        String
   description String
   totalSeats  Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   reservations Reservation[]
 
   @@index([createdAt])
+  @@index([deletedAt])
 }
 
 model Reservation {

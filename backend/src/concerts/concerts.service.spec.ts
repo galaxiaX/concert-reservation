@@ -11,7 +11,8 @@ describe('ConcertsService', () => {
   let prisma: {
     concert: {
       create: jest.Mock;
-      delete: jest.Mock;
+      updateMany: jest.Mock;
+      findMany: jest.Mock;
     };
   };
 
@@ -19,7 +20,8 @@ describe('ConcertsService', () => {
     prisma = {
       concert: {
         create: jest.fn(),
-        delete: jest.fn(),
+        updateMany: jest.fn(),
+        findMany: jest.fn(),
       },
     };
     service = new ConcertsService(prisma as unknown as PrismaService);
@@ -38,9 +40,32 @@ describe('ConcertsService', () => {
     });
   });
 
+  describe('list', () => {
+    it('returns only non-deleted concerts', async () => {
+      prisma.concert.findMany.mockResolvedValue([]);
+
+      await service.list('u1');
+
+      expect(prisma.concert.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { deletedAt: null } }),
+      );
+    });
+  });
+
   describe('remove', () => {
-    it('maps a missing concert (P2025) to 404', async () => {
-      prisma.concert.delete.mockRejectedValue({ code: 'P2025' });
+    it('soft-deletes by stamping deletedAt on a live concert', async () => {
+      prisma.concert.updateMany.mockResolvedValue({ count: 1 });
+
+      await service.remove('c1');
+
+      expect(prisma.concert.updateMany).toHaveBeenCalledWith({
+        where: { id: 'c1', deletedAt: null },
+        data: { deletedAt: expect.any(Date) as Date },
+      });
+    });
+
+    it('maps a missing or already-deleted concert to 404', async () => {
+      prisma.concert.updateMany.mockResolvedValue({ count: 0 });
 
       await expect(service.remove('missing')).rejects.toBeInstanceOf(
         NotFoundException,
@@ -48,7 +73,7 @@ describe('ConcertsService', () => {
     });
 
     it('rethrows unexpected errors', async () => {
-      prisma.concert.delete.mockRejectedValue(new Error('db down'));
+      prisma.concert.updateMany.mockRejectedValue(new Error('db down'));
 
       await expect(service.remove('c1')).rejects.toThrow('db down');
     });

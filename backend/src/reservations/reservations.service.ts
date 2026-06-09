@@ -37,7 +37,9 @@ export class ReservationsService {
     try {
       return await this.prisma.$transaction(async (tx) => {
         const locked = await tx.$queryRaw<{ id: string; totalSeats: number }[]>`
-          SELECT id, "totalSeats" FROM "Concert" WHERE id = ${concertId} FOR UPDATE
+          SELECT id, "totalSeats" FROM "Concert"
+          WHERE id = ${concertId} AND "deletedAt" IS NULL
+          FOR UPDATE
         `;
         if (locked.length === 0) {
           throw new NotFoundException('Concert not found');
